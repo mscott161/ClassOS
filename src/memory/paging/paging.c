@@ -141,6 +141,7 @@ int paging_map_to(struct paging_4gb_chunk *directory, void *virt, void *phys, vo
 out:
     return res;
 }
+
 int paging_set(uint32_t *directory, void *virt, uint32_t val)
 {
     if (!paging_is_aligned(virt))

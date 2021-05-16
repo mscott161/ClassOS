@@ -26,6 +26,7 @@ void no_interrupt_handler()
 
 void interrupt_handler(int interrupt, struct interrupt_frame* frame)
 {
+    //print("interrupt_handler\n");
     kernel_page();
 
     if (interrupt_callbacks[interrupt] != 0)

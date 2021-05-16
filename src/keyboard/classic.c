@@ -45,7 +45,16 @@ int classic_keyboard_init()
     // keyboard_set_right_shift(&classic_keyboard, KEYBOARD_SHIFT_RIGHT_UP);
     // keyboard_set_left_shift(&classic_keyboard, KEYBOARD_SHIFT_LEFT_UP);
 
-    outb(PS2_PORT, PS2_COMMAND_ENABLE_FIRST_PORT);
+    //outb(PS2_PORT, PS2_COMMAND_ENABLE_FIRST_PORT);
+    print("Here\n");
+    while(insb(PS2_PORT) & 0x1)
+        insb(KEYBOARD_INPUT_PORT);
+    outb(PS2_PORT, 0xae); // activate interrupts
+    outb(PS2_PORT, 0x20); // command 0x20 = read controller command byte
+    uint8_t status = (insb(KEYBOARD_INPUT_PORT) | 1) & ~0x10;
+    outb(PS2_PORT, 0x60); // command 0x60 = set controller command byte
+    outb(KEYBOARD_INPUT_PORT, status);
+    outb(KEYBOARD_INPUT_PORT, 0xf4);
 
     return 0;
 }

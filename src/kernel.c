@@ -22,8 +22,12 @@
 
 #include "status.h"
 
+#include "pci/pci.h"
+#include "video/bochs.h"
+
 #include <stdint.h>
 #include <stddef.h>
+#include <stdarg.h>
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -88,6 +92,12 @@ void terminal_writechar(char c, char color)
         terminal_col = 0;
         terminal_row++;
     }
+
+    if (terminal_row >= 25)
+    {
+        terminal_col = 0;
+        terminal_row = 0;
+    }
 }
 
 void terminal_initialize()
@@ -112,6 +122,103 @@ void print(const char* str)
     {
         terminal_writechar(str[i], 15);
     }
+}
+
+char* itoa(int i)
+{
+    static char text[12];
+    int loc = 11;
+    text[11] = 0;
+    char neg = 1;
+    if (i >= 0)
+    {
+        neg = 0;
+        i = -i;
+    }
+
+    while (i)
+    {
+        text[--loc] = '0' - (i % 10);
+        i /= 10;
+    }
+
+    if (loc == 11)
+        text[--loc] = '0';
+    
+    if (neg)
+        text[--loc] = '-';
+    
+    return &text[loc];
+}
+
+
+void printfHex(uint8_t key)
+{
+    char* foo = "00";
+    char* hex = "0123456789ABCDEF";
+    foo[0] = hex[(key >> 4) & 0xF];
+    foo[1] = hex[key & 0xF];
+    print(foo);
+}
+void printfHex16(uint16_t key)
+{
+    printfHex((key >> 8) & 0xFF);
+    printfHex( key & 0xFF);
+}
+void printfHex32(uint32_t key)
+{
+    printfHex((key >> 24) & 0xFF);
+    printfHex((key >> 16) & 0xFF);
+    printfHex((key >> 8) & 0xFF);
+    printfHex( key & 0xFF);
+}
+
+void printf2(const char* fmt, ...)
+{
+    va_list ap;
+    const char* p;
+    char* sval;
+    int ival;
+
+    va_start(ap, fmt);
+
+    for (p = fmt; *p; p++)
+    {
+        if (*p != '%')
+        {
+            terminal_writechar(*p, 15);
+            continue;
+        }
+
+        switch(*++p)
+        {
+            case 'i': // %i
+                ival = va_arg(ap, int);
+                print(itoa(ival));
+                break;
+
+            case 'x': // %x
+                ival = va_arg(ap, int);
+                char* foo = "00";
+                char* hex = "0123456789ABCDEF";
+                foo[0] = hex[(ival >> 4) & 0xF];
+                foo[1] = hex[ival & 0xF];
+                terminal_writechar(foo[0], 15);
+                terminal_writechar(foo[1], 15);
+                break;
+
+            case 's': // %s
+                sval = va_arg(ap, char*);
+                print(sval);
+                break;
+
+            default:
+                terminal_writechar(*p, 15);
+                break;
+        }
+    }
+
+    va_end(ap);
 }
 
 static struct paging_4gb_chunk* kernel_chunk = 0;
@@ -182,11 +289,19 @@ void kernel_main()
     // Register the kernel commands
     isr80h_register_commands();
 
+    // Initialize PCI Controller
+    //pci_init();
+
     // Initialize all the system keyboards
     keyboard_init();
 
     // Initialize all the system mice
-    mouse_init();
+    //mouse_init();
+
+    // Initialize Bochs VGA
+    //bochs_init(640, 480, 32);
+
+    //bochs_vbe_rect(0, 0, 320, 240, (color_t){0xC9C9C9});
 
     struct process* process = 0;
     int res = process_load_switch("0:/shell.elf", &process);
@@ -203,6 +318,8 @@ void kernel_main()
 
     task_run_first_ever_task();
 
-    while(1) {}
+    while(1) {
+        
+    }
 }
 
