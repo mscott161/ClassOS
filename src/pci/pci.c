@@ -88,15 +88,6 @@ void pci_init()
                 if(dev->vendor_id == 0x0000 || dev->vendor_id == 0xFFFF)
                     continue;
 
-                if (dev->vendor_id == 0x1234 && dev->device_id == 0x1111)
-                {
-                    struct bar* bar = GetBaseAddressRegister(bus, device, function, 0);
-                    if (bar)
-                    {
-                        printf2("Address\n");
-                    }                   
-                }
-
                 printf2("PCI BUS ");
                 printf2("%x", bus & 0xFF);
                 

@@ -9,5 +9,6 @@
 #define KEYBOARD_INPUT_PORT 0x60
 
 struct keyboard* classic_key_init();
+int classic_keyboard_init();
 
 #endif

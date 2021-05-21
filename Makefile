@@ -1,4 +1,4 @@
-FILES = ./build/kernel.asm.o ./build/kernel.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/memory/memory.o ./build/io/io.asm.o ./build/memory/heap/heap.o ./build/memory/heap/kheap.o ./build/memory/paging/paging.o ./build/memory/paging/paging.asm.o ./build/disk/disk.o ./build/fs/pparser.o ./build/string/string.o ./build/disk/streamer.o ./build/fs/file.o ./build/fs/fat/fat16.o ./build/gdt/gdt.asm.o ./build/gdt/gdt.o ./build/task/tss.asm.o ./build/task/task.o ./build/task/process.o ./build/task/task.asm.o ./build/isr80h/isr80h.o ./build/isr80h/misc.o ./build/isr80h/io.o ./build/keyboard/keyboard.o ./build/keyboard/classic.o ./build/loader/formats/elfloader.o ./build/loader/formats/elf.o ./build/isr80h/heap.o ./build/isr80h/process.o ./build/mouse/mouse.o ./build/mouse/classic.o ./build/video/vga.o ./build/video/bochs.o ./build/pci/pci.o
+FILES = ./build/kernel.asm.o ./build/kernel.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/memory/memory.o ./build/io/io.asm.o ./build/memory/heap/heap.o ./build/memory/heap/kheap.o ./build/memory/paging/paging.o ./build/memory/paging/paging.asm.o ./build/disk/disk.o ./build/fs/pparser.o ./build/string/string.o ./build/disk/streamer.o ./build/fs/file.o ./build/fs/fat/fat16.o ./build/gdt/gdt.asm.o ./build/gdt/gdt.o ./build/task/tss.asm.o ./build/task/task.o ./build/task/process.o ./build/task/task.asm.o ./build/isr80h/isr80h.o ./build/isr80h/misc.o ./build/isr80h/io.o ./build/keyboard/keyboard.o ./build/keyboard/classic.o ./build/loader/formats/elfloader.o ./build/loader/formats/elf.o ./build/isr80h/heap.o ./build/isr80h/process.o ./build/mouse/mouse.o ./build/mouse/classic.o ./build/pci/pci.o ./build/pic/pic.o
 INCLUDES = -I ./src
 FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 
@@ -117,6 +117,9 @@ all: ./bin/boot.bin ./bin/kernel.bin user_programs
 
 ./build/pci/pci.o: ./src/pci/pci.c
 	i686-elf-gcc $(INCLUDES) $(FLAGS) -I./src/pci -std=gnu99 -c ./src/pci/pci.c -o ./build/pci/pci.o
+
+./build/pic/pic.o: ./src/pic/pic.c
+	i686-elf-gcc $(INCLUDES) $(FLAGS) -I./src/pic -std=gnu99 -c ./src/pic/pic.c -o ./build/pic/pic.o
 
 ./build/video/vga.o: ./src/video/vga.c
 	i686-elf-gcc $(INCLUDES) $(FLAGS) -I./src/video -std=gnu99 -c ./src/video/vga.c -o ./build/video/vga.o

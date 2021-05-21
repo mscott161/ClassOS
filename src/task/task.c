@@ -197,7 +197,7 @@ void task_run_first_ever_task()
     }
 
     task_switch(task_head);
-    task_return(&task_head->registers);
+  task_return(&task_head->registers);
 }
 
 int task_init(struct task *task, struct process *process)

@@ -40,9 +40,15 @@ out:
     return res;
 }
 
+
+
+
+
+
+
+
 void mouse_data(uint8_t index, uint8_t data)
 {
-  print("mouse data\n");
     struct process* process = process_current();
     process->mouse.mouse_byte[index] = data;
 }

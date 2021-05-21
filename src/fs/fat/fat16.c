@@ -43,7 +43,7 @@ struct fat_header
     uint8_t short_jmp_ins[3];
     uint8_t oem_identifier[8];
     uint16_t bytes_per_sector;
-    uint8_t sectors_per_clusters;
+    uint8_t sectors_per_cluster;
     uint16_t reserved_sectors;
     uint8_t fat_copies;
     uint16_t root_dir_entries;
@@ -364,7 +364,7 @@ static uint32_t fat16_get_first_cluster(struct fat_directory_item* item)
 static int fat16_cluster_to_sector(struct fat_private* private, int cluster)
 {
     // converting from cluster to sectory then (cluster - 2)
-    return private->root_directory.ending_sector_pos + ((cluster - 2) * private->header.primary_header.sectors_per_clusters);
+    return private->root_directory.ending_sector_pos + ((cluster - 2) * private->header.primary_header.sectors_per_cluster);
 }
 
 static uint32_t fat16_get_first_fat_sector(struct fat_private* private)
@@ -410,7 +410,7 @@ static int fat16_get_cluster_for_offset(struct disk* disk, int starting_cluster,
     int res = 0;
 
     struct fat_private* private = disk->fs_private;
-    int size_of_cluster_bytes = private->header.primary_header.sectors_per_clusters * disk->sector_size;
+    int size_of_cluster_bytes = private->header.primary_header.sectors_per_cluster * disk->sector_size;
     int cluster_to_use = starting_cluster;
     int cluster_ahead = offset / size_of_cluster_bytes;
     for (int i = 0; i < cluster_ahead; i++)
@@ -456,7 +456,7 @@ static int fat16_read_internal_from_stream(struct disk* disk, struct disk_stream
     int res = 0;
 
     struct fat_private* private = disk->fs_private;
-    int size_of_cluster_bytes = private->header.primary_header.sectors_per_clusters * disk->sector_size;
+    int size_of_cluster_bytes = private->header.primary_header.sectors_per_cluster * disk->sector_size;
     int cluster_to_use = fat16_get_cluster_for_offset(disk, cluster, offset);
     
     if (cluster_to_use < 0)

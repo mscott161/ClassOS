@@ -22,6 +22,7 @@
 
 #include "status.h"
 
+#include "pic/pic.h"
 #include "pci/pci.h"
 #include "video/bochs.h"
 
@@ -290,13 +291,16 @@ void kernel_main()
     isr80h_register_commands();
 
     // Initialize PCI Controller
-    //pci_init();
+    pci_init();
+
+    // Init PS/2 Controller
+    init_pic();
 
     // Initialize all the system keyboards
     keyboard_init();
 
     // Initialize all the system mice
-    //mouse_init();
+    mouse_init();
 
     // Initialize Bochs VGA
     //bochs_init(640, 480, 32);

@@ -17,35 +17,20 @@ struct mouse class_mouse = {
 
 void classic_mouse_handle_interrupt();
 
-void mouse_wait(uint8_t a_type) //unsigned char
+typedef enum MouseCommands
 {
-  uint32_t _time_out=100000; //unsigned int
+    MOUSE_ACK = 0xFA,
+    MOUSE_IDENTITY = 0xF2,
+    MOUSE_ENABLE_PACKETS = 0xF4,
+    MOUSE_DISABLE_DATA = 0xF5,
+    MOUSE_READ_PORT = 0x60,
+    MOUSE_WRITE_PORT = 0x64,
+} MouseCommands;
 
-  if(a_type==0)
-  {
-    while(_time_out--) //Data
-    {
-      if((insb(0x64) & 1)==1)
-      {
-        print("Type 0 Return\n");
-        return;
-      }
-    }
-    return;
-  }
-  else
-  {
-    while(_time_out--) //Signal
-    {
-      if((insb(0x64) & 2)==0)
-      {
-        print("Type 1 Return\n");
-        return;
-      }
-    }
-    return;
-  }
-}
+uint8_t offset;
+uint8_t buffer[3];
+uint8_t mouse_key;
+int8_t mouse_x = 40, mouse_y = 12;
 
 int mouseX = 40;
 int mouseY = 12;
@@ -73,54 +58,50 @@ int classic_mouse_init()
 {
     idt_register_interrupt_callback(0x2C, classic_mouse_handle_interrupt);
 
-  outb(PS2_MOUSE_PORT, 0xA8);
-  outb(PS2_MOUSE_PORT, 0x20);
-  
-  uint8_t status = insb(MOUSE_INPUT_PORT) | 2;
-  outb(PS2_MOUSE_PORT, 0x60);
-  outb(MOUSE_INPUT_PORT, status);
+    outb(0x64, 0xA8);
+    
+    outb(0x64, 0x20);
+    uint8_t status = insb(0x60) | 2;
+    outb(0x64, 0x60);
+    outb(0x60, status);
+    outb(0x64, 0xD4);
+    outb(0x60, 0xF4);
+    insb(0x60);
 
-  outb(PS2_MOUSE_PORT, 0xD4);
-  outb(MOUSE_INPUT_PORT, 0xF4);
-  insb(MOUSE_INPUT_PORT);
-
-  uint8_t buffer[3];
-  uint8_t offset = 0;
-  while(1)
-  {
-        uint8_t status = insb(PS2_MOUSE_PORT);
-
-        if (!(status & 0x20))
-            continue;
-
-        buffer[offset] = insb(MOUSE_INPUT_PORT);
-                
-        offset = (offset + 1) % 3;
-
-        if(offset == 0)
-        {
-            if(buffer[1] != 0 || buffer[2] != 0)
-            {
-              //printf2("Move %i %i ", (int8_t)buffer[1], -((int8_t)buffer[2]));
-              OnMouseMove((int8_t)buffer[1], -((int8_t)buffer[2]));
-            }
-        }
-  }
-  print("END OF MOUSE\n");
-
-    return 0;
+print("Mouse Init\n");
+  return 0;
 }
 
 void classic_mouse_handle_interrupt()
 {
-    print("Mouse Handler\n");
-    // kernel_page();
+    outb(0xA0, 0x20); // PIC Ack Slave
+    
+    uint8_t __status = insb(0x64);
+    if (!(__status & 0x20))
+        return;
 
-    // mouse_data(0, insb(0x60));
-    // mouse_data(1, insb(0x60));
-    // mouse_data(2, insb(0x60));
+    buffer[offset] = insb(0x60);
+    offset = (offset + 1) % 3;
 
-    // task_page();
+    if(offset == 0)
+    {
+        if(buffer[1] != 0 || buffer[2] != 0)
+        {
+            OnMouseMove((int8_t)buffer[1], -((int8_t)buffer[2]));
+        }
+
+        for(uint8_t i = 0; i < 3; i++)
+        {
+            // if((buffer[0] & (0x1<<i)) != (buttons & (0x1<<i)))
+            // {
+            //     if(buttons & (0x1<<i))
+            //         handler->OnMouseUp(i+1);
+            //     else
+            //         handler->OnMouseDown(i+1);
+            // }
+        }
+        // buttons = buffer[0];
+    }
 }
 
 struct mouse* classic_mice_init()

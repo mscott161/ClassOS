@@ -24,16 +24,29 @@ _start:
   out 0x92, al
 
   ; Remap the master PIC
-  mov al, 00010001b
-  out 0x20, al ; Tell Master PIC
+  ;mov al, 00010001b
+  ;out 0x20, al ; Tell Master PIC
 
-  mov al, 0x20 ; Interrupt 0x20 is where master ISR should start
-  out 0x21, al
+  ;mov al, 0x20 ; Interrupt 0x20 is where master ISR should start
+  ;out 0x21, al
 
-  mov al, 00000001b
-  out 0x21, al
+  ;mov al, 00000001b
+  ;out 0x21, al
 
   ; End Remap the master PIC
+
+  ; Remap the slave PIC
+
+  ;mov al, 00010001b
+  ;out 0x28, al ; Tell Slave PIC
+
+  ;mov al, 0x28 ; Interrupt 0x28 is where slace ISR should start
+  ;out 0x29, al
+
+  ;mov al, 00000001b
+  ;out 0x29, al
+
+  ; End Remap the slave PIC
 
   call kernel_main
 

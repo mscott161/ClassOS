@@ -8,5 +8,6 @@
 #define MOUSE_INPUT_PORT 0x60
 
 struct mouse* classic_mice_init();
+int classic_mouse_init();
 
 #endif
